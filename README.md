@@ -2,6 +2,14 @@
 
 EsportsConnect is a premium, full-stack professional networking platform built exclusively for **Valorant** and **BGMI** players. It is designed to help players showcase their ranks, find elite teammates, and get scouted by competitive organizations.
 
+## 🎯 Problem Statement
+In the highly competitive esports landscape, amateur and semi-pro players often struggle to find reliable, similarly-skilled teammates. Generic platforms like Discord or Reddit lack structured data (verified ranks, roles, agent pools, and playstyles), leading to mismatched teams, toxic environments, and wasted time. There is no dedicated, professional platform designed specifically to bridge the gap between solo-queue players and structured competitive teams.
+
+## 👥 Target Users
+- **Solo Players:** Amateur or semi-pro players looking to escape solo-queue and find a dedicated, non-toxic team to compete in tournaments.
+- **Team Captains/Owners:** Leaders looking to scout and recruit players who fit a specific role (e.g., IGL, Entry Fragger, Sniper) and rank requirement.
+- **Esports Organizations:** Orgs looking to discover emerging talent based on structured performance metrics rather than word-of-mouth.
+
 ## ✨ Features
 - **Dynamic UI/UX:** A highly interactive, dark-themed UI featuring custom glassmorphism, 3D mouse-tilt cards, magnetic CTAs, and a floating particle background.
 - **Player Profiles:** Create comprehensive esports resumes highlighting your rank, roles, signature agents, and social links.
