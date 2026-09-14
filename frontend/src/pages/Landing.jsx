@@ -141,7 +141,7 @@ const Landing = () => {
         {/* Left Side: Copy & CTA */}
         <div style={{ flex: 1, zIndex: 10, maxWidth: '600px' }} className="animate-fade-in-up">
           <h1 style={{ 
-            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', 
+            fontSize: 'clamp(1.2rem, 4.5vw, 4.5rem)', 
             lineHeight: '1.1',
             marginBottom: '1.5rem',
             background: 'linear-gradient(to right, #ffffff, #9ca3af)',
