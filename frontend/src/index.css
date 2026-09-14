@@ -201,8 +201,8 @@ input:focus, textarea:focus, select:focus {
 .delay-400 { animation-delay: 400ms; }
 
 @keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from { max-width: 0 }
+  to { max-width: 100% }
 }
 
 @keyframes blink-caret {
@@ -228,4 +228,82 @@ input:focus, textarea:focus, select:focus {
 
 .glow-effect {
   animation: pulse-glow 3s infinite;
+}
+
+/* Interactive Effects */
+.interactive-card {
+  position: relative;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 3rem 2rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+.interactive-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    800px circle at var(--mouse-x) var(--mouse-y),
+    rgba(220, 38, 38, 0.15),
+    transparent 40%
+  );
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.interactive-card:hover::before {
+  opacity: 1;
+}
+
+.interactive-card-content {
+  position: relative;
+  z-index: 1;
+  transform: translateZ(30px); /* 3D pop effect */
+}
+
+/* Particles */
+.particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  bottom: -10px;
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-accent-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px var(--color-accent-primary);
+  opacity: 0;
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+}
+
+.magnetic-btn-wrapper {
+  display: inline-block;
 }
