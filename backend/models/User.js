@@ -26,6 +26,11 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
+  primaryGame: {
+    type: String,
+    enum: ['Valorant', 'BGMI'],
+    default: 'Valorant'
+  },
   role: {
     type: String,
     enum: ['player', 'team_owner', 'admin'],

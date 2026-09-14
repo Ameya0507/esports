@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import Landing from './pages/Landing'
@@ -19,29 +20,31 @@ import './index.css'
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/home" element={<Feed />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/:id" element={<Profile />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
-            <Route path="/players" element={<PlayerSearch />} />
-            <Route path="/teams" element={<Teams />} />
-            <Route path="/create-team" element={<CreateTeam />} />
-            <Route path="/teams/:id" element={<TeamProfile />} />
-            <Route path="/recruitment" element={<Recruitment />} />
-            <Route path="/build-team" element={<BuildTeam />} />
-            <Route path="/messages" element={<Messages />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'placeholder'}>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/home" element={<Feed />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/edit-profile" element={<EditProfile />} />
+              <Route path="/players" element={<PlayerSearch />} />
+              <Route path="/teams" element={<Teams />} />
+              <Route path="/create-team" element={<CreateTeam />} />
+              <Route path="/teams/:id" element={<TeamProfile />} />
+              <Route path="/recruitment" element={<Recruitment />} />
+              <Route path="/build-team" element={<BuildTeam />} />
+              <Route path="/messages" element={<Messages />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   )
 }
 

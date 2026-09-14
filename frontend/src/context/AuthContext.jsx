@@ -55,6 +55,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (googleData) => {
+    try {
+      const res = await api.post('/auth/google', googleData);
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user);
+      setError(null);
+      return true;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google authentication failed');
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
@@ -62,7 +75,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, login, register, logout, setError }}
+      value={{ user, loading, error, login, register, googleLogin, logout, setError }}
     >
       {children}
     </AuthContext.Provider>
