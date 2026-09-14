@@ -85,7 +85,7 @@ exports.logout = async (req, res) => {
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret123', {
-    expiresIn: process.env.JWT_EXPIRE || '30d'
+    expiresIn: '30d' // Hardcoded to prevent Render parsing errors
   });
 
   res.status(statusCode).json({
