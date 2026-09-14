@@ -1,5 +1,7 @@
 # 🎮 EsportsConnect
 
+**Live Demo:** [https://esports-flax.vercel.app/](https://esports-flax.vercel.app/)
+
 EsportsConnect is a premium, full-stack professional networking platform built exclusively for **Valorant** and **BGMI** players. It is designed to help players showcase their ranks, find elite teammates, and get scouted by competitive organizations.
 
 ## 🎯 Problem Statement
