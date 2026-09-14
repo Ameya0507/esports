@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
@@ -85,6 +85,22 @@ const InteractiveCard = ({ children, delayClass }) => {
 const Landing = () => {
   const { user } = useContext(AuthContext);
   const particlesRef = useRef(null);
+  const [typedTitle, setTypedTitle] = useState('');
+  
+  const fullTitle = "DOMINATING THE LOBBY.";
+
+  useEffect(() => {
+    let charIndex = 0;
+    const typeInterval = setInterval(() => {
+      if (charIndex <= fullTitle.length) {
+        setTypedTitle(fullTitle.slice(0, charIndex));
+        charIndex++;
+      } else {
+        clearInterval(typeInterval);
+      }
+    }, 100);
+    return () => clearInterval(typeInterval);
+  }, []);
 
   useEffect(() => {
     // Generate particles
@@ -141,7 +157,7 @@ const Landing = () => {
         {/* Left Side: Copy & CTA */}
         <div style={{ flex: 1, zIndex: 10, maxWidth: '600px' }} className="animate-fade-in-up">
           <h1 style={{ 
-            fontSize: 'clamp(1.2rem, 4.5vw, 4.5rem)', 
+            fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', 
             lineHeight: '1.1',
             marginBottom: '1.5rem',
             background: 'linear-gradient(to right, #ffffff, #9ca3af)',
@@ -149,7 +165,7 @@ const Landing = () => {
             WebkitTextFillColor: 'transparent',
             letterSpacing: '-1px'
           }}>
-            <span className="typewriter-text">DOMINATE THE LOBBY.</span>
+            <span className="typewriter-js-text">{typedTitle}</span><span className="cursor"></span>
           </h1>
           <p className="animate-fade-in-up delay-100" style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)', marginBottom: '3rem' }}>
             The ultimate professional network for Valorant and BGMI players. Find elite teammates, join competitive rosters, and get discovered.

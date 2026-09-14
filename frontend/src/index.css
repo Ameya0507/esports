@@ -200,20 +200,28 @@ input:focus, textarea:focus, select:focus {
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 
-@keyframes typing {
-  from { max-width: 0 }
-  to { max-width: 100% }
+.typewriter-js-text {
+  display: inline;
+}
+
+.cursor {
+  display: inline-block;
+  width: 10px;
+  height: 1em;
+  background-color: var(--color-accent-primary);
+  animation: blink-caret 0.75s step-end infinite;
+  margin-left: 5px;
+  vertical-align: middle;
 }
 
 @keyframes blink-caret {
-  from, to { border-color: transparent }
-  50% { border-color: var(--color-accent-primary); }
+  from, to { opacity: 1 }
+  50% { opacity: 0 }
 }
 
 .typewriter-text {
   overflow: hidden;
   border-right: 3px solid var(--color-accent-primary);
-  white-space: nowrap;
   animation: 
     typing 1.5s steps(40, end),
     blink-caret 0.75s step-end infinite;
