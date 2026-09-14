@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api', // Will use proxy or env variable in production
+  baseURL: 'https://esports-ayds.onrender.com/api', // Render Production URL
   headers: {
     'Content-Type': 'application/json',
   },
