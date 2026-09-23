@@ -24,7 +24,6 @@ const Login = () => {
     setSubmitting(false);
   };
 
-
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -35,8 +34,12 @@ const Login = () => {
         </div>
 
         <div className="card" style={{ padding: 'var(--space-8)' }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Welcome back</h1>
-          <p className="text-sm text-muted" style={{ marginBottom: 'var(--space-6)' }}>Sign in to continue to your account</p>
+          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6, fontFamily: 'var(--font-display)' }}>
+            Welcome back
+          </h1>
+          <p className="text-sm text-muted" style={{ marginBottom: 'var(--space-6)' }}>
+            Sign in to continue to your account
+          </p>
 
           {error && (
             <div style={{
@@ -52,9 +55,9 @@ const Login = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label">Email address</label>
               <input
                 className="form-input"
                 type="email"
@@ -84,7 +87,7 @@ const Login = () => {
             <button
               type="submit"
               className="btn btn-primary btn-full"
-              style={{ height: 42, marginTop: 'var(--space-2)' }}
+              style={{ height: 44, marginTop: 'var(--space-4)', fontSize: 14 }}
               disabled={submitting}
             >
               {submitting ? 'Signing in…' : 'Sign in'}
@@ -94,7 +97,7 @@ const Login = () => {
 
         <p className="text-sm text-muted" style={{ textAlign: 'center', marginTop: 'var(--space-5)' }}>
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--brand)', fontWeight: 600 }}>Create one</Link>
+          <Link to="/register" style={{ color: 'var(--brand)', fontWeight: 600 }}>Create one free</Link>
         </p>
       </div>
     </div>
