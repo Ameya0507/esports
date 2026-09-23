@@ -192,7 +192,7 @@ const PlayerSearch = () => {
             <p className="text-sm text-muted" style={{ marginBottom: 'var(--space-4)' }}>
               {players.length} player{players.length !== 1 ? 's' : ''} found
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
+            <div className="animate-stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-4)' }}>
               {players.map(p => <PlayerCard key={p._id} player={p} />)}
             </div>
           </>

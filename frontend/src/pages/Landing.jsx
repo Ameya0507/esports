@@ -72,7 +72,7 @@ const Landing = () => {
   if (user) return <Navigate to="/home" />;
 
   return (
-    <div>
+    <div className="animate-stagger">
       {/* ——— HERO ——— */}
       <section className="hero">
         <span className="hero__eyebrow">
@@ -143,7 +143,7 @@ const Landing = () => {
             <h2 className="text-h1">The core product loop</h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-1)' }}>
+          <div className="animate-stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-1)' }}>
             {['Discover', 'Evaluate', 'Connect', 'Recruit', 'Build'].map((step, i) => (
               <div
                 key={step}
@@ -187,7 +187,7 @@ const Landing = () => {
             <h2 className="text-h1">Everything you need to go pro</h2>
           </div>
 
-          <div className="feature-grid">
+          <div className="feature-grid animate-stagger">
             {FEATURES.map(f => (
               <div key={f.title} className="feature-card">
                 <div className="feature-card__icon">{f.icon}</div>

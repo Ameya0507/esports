@@ -80,7 +80,7 @@
   --shadow-sm:  0 1px 2px rgba(0,0,0,0.4);
   --shadow-md:  0 4px 12px rgba(0,0,0,0.5);
   --shadow-lg:  0 8px 24px rgba(0,0,0,0.6);
-  --shadow-brand: 0 4px 20px rgba(229,62,62,0.25);
+  --shadow-brand: 0 4px 20px rgba(99,102,241,0.25);
 
   /* Transitions */
   --t-fast:   120ms ease;
@@ -90,6 +90,33 @@
   /* Navbar height */
   --nav-h: 60px;
 }
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-stagger > * {
+  opacity: 0;
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+.animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+.animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+.animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+.animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+.animate-stagger > *:nth-child(6) { animation-delay: 0.6s; }
+
 
 /* ============================================================
    RESET & BASE
@@ -141,6 +168,7 @@ h1,h2,h3,h4,h5,h6 {
 .page-wrapper {
   min-height: calc(100vh - var(--nav-h));
   padding: var(--space-8) 0;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 .container {
@@ -237,8 +265,12 @@ h1,h2,h3,h4,h5,h6 {
   background: var(--brand-dim);
   border-color: var(--brand-dim);
   box-shadow: var(--shadow-brand);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   color: #fff;
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .btn-secondary {
@@ -251,6 +283,11 @@ h1,h2,h3,h4,h5,h6 {
   background: var(--bg-hover);
   border-color: var(--border-strong);
   color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .btn-ghost {
@@ -291,6 +328,7 @@ h1,h2,h3,h4,h5,h6 {
 .card--hoverable:hover {
   border-color: var(--border-muted);
   box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
 }
 
 .card--elevated {
@@ -348,6 +386,7 @@ h1,h2,h3,h4,h5,h6 {
 .form-textarea:focus {
   border-color: var(--brand);
   box-shadow: 0 0 0 3px var(--brand-muted);
+  transform: translateY(-1px);
 }
 
 .form-input::placeholder,

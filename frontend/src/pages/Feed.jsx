@@ -112,7 +112,7 @@ const Feed = () => {
                 ))}
               </div>
             ) : posts.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div className="animate-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                 {posts.map(post => {
                   const liked = post.likes?.some(l => l.user === user?.id);
                   return (
@@ -177,7 +177,7 @@ const Feed = () => {
           </div>
 
           {/* ——— SIDEBAR ——— */}
-          <aside style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', position: 'sticky', top: 'calc(var(--nav-h) + var(--space-6))' }}>
+          <aside className="animate-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', position: 'sticky', top: 'calc(var(--nav-h) + var(--space-6))' }}>
             {/* Quick links */}
             <div className="card" style={{ padding: 'var(--space-4)' }}>
               <p className="section-label" style={{ marginBottom: 'var(--space-3)' }}>Quick access</p>

@@ -82,7 +82,7 @@ const Teams = () => {
             {[1,2,3,4].map(i => <TeamSkeleton key={i} />)}
           </div>
         ) : filtered.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
+          <div className="animate-stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
             {filtered.map(team => (
               <div
                 key={team._id}

@@ -79,7 +79,7 @@ const Recruitment = () => {
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div className="animate-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             {filtered.map(post => (
               <div key={post._id} className="recruit-card">
                 {/* Header */}
