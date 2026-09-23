@@ -75,7 +75,7 @@ const Profile = () => {
 
   return (
     <div className="page-wrapper">
-      <div className="container" style={{ maxWidth: 800 }}>
+      <div className="container animate-stagger" style={{ maxWidth: 800 }}>
 
         {/* ——— HERO HEADER ——— */}
         <div className="card" style={{ marginBottom: 'var(--space-5)', padding: 'var(--space-8)' }}>

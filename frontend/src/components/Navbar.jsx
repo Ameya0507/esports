@@ -105,36 +105,56 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Premium Mobile Menu Overlay */}
       {user && mobileOpen && (
-        <div className="navbar__mobile-menu">
-          {NAV_ITEMS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `navbar__link${isActive ? ' navbar__link--active' : ''}`
-              }
-              onClick={() => setMobileOpen(false)}
-            >
-              {label}
-            </NavLink>
-          ))}
-          <hr className="divider" style={{ margin: '8px 0' }} />
-          <NavLink
-            to="/profile"
-            className="navbar__link"
-            onClick={() => setMobileOpen(false)}
-          >
-            My Profile
-          </NavLink>
-          <button
-            onClick={handleLogout}
-            className="navbar__link"
-            style={{ textAlign: 'left', border: 'none', background: 'none', color: 'var(--text-secondary)', width: '100%' }}
-          >
-            Sign out
-          </button>
+        <div className="mobile-menu-overlay" onClick={() => setMobileOpen(false)}>
+          <div className="mobile-menu-content animate-stagger" onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)' }}>Menu</span>
+              <button className="btn btn-ghost" onClick={() => setMobileOpen(false)} style={{ padding: 4 }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              {NAV_ITEMS.map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `mobile-menu-link${isActive ? ' mobile-menu-link--active' : ''}`
+                  }
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+
+            <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: 'var(--space-5) 0' }} />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              <NavLink
+                to="/profile"
+                className="mobile-menu-link"
+                onClick={() => setMobileOpen(false)}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                  <div className="avatar avatar--sm avatar--brand">{initials}</div>
+                  My Profile
+                </div>
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="mobile-menu-link mobile-menu-link--danger"
+                style={{ width: '100%', textAlign: 'left' }}
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

@@ -9,12 +9,14 @@
    TOKENS
    ============================================================ */
 :root {
-  /* Backgrounds */
-  --bg-base:     #08090a;
-  --bg-surface:  #0f1012;
-  --bg-elevated: #15171a;
-  --bg-hover:    #1c1f23;
-  --bg-active:   #21252b;
+  /* Backgrounds (Concept 1 - Deep Indigo Base) */
+  --bg-base:     #05050A; /* Extremely dark indigo/black */
+  --bg-surface:  #0a0b12;
+  --bg-elevated: #11131c;
+  --bg-hover:    #181b26;
+  --bg-active:   #1f2433;
+  --bg-glass:    rgba(16, 18, 27, 0.6);
+  --glass-blur:  blur(12px);
 
   /* Brand — Indigo/Purple */
   --brand:       #6366f1;
@@ -30,10 +32,10 @@
   --text-link:      #818cf8;
 
   /* Borders */
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-muted:  rgba(255,255,255,0.10);
-  --border-strong: rgba(255,255,255,0.18);
-  --border-brand:  rgba(99,102,241,0.45);
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-muted:  rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+  --border-brand:  rgba(99,102,241,0.5);
 
   /* Status */
   --success:     #22c55e;
@@ -132,6 +134,15 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Fix ugly default focus rings globally */
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
 body {
   background-color: var(--bg-base);
   color: var(--text-primary);
@@ -154,6 +165,21 @@ a:hover { color: var(--brand-dim); }
 button { cursor: pointer; font-family: inherit; }
 
 img { display: block; max-width: 100%; }
+
+/* --- Glassmorphism Utilities --- */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.glass-panel--glow {
+  box-shadow: 0 4px 30px rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
 
 h1,h2,h3,h4,h5,h6 {
   font-family: var(--font-display);
@@ -318,26 +344,29 @@ h1,h2,h3,h4,h5,h6 {
    CARDS
    ============================================================ */
 .card {
-  background: var(--bg-surface);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  transition: border-color var(--t-normal), box-shadow var(--t-normal);
+  transition: all var(--t-normal);
 }
 
 .card--hoverable:hover {
-  border-color: var(--border-muted);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 30px rgba(99, 102, 241, 0.1);
   transform: translateY(-4px);
 }
 
 .card--elevated {
-  background: var(--bg-elevated);
+  background: rgba(21, 23, 30, 0.8);
 }
 
 .card--brand-hover:hover {
-  border-color: var(--border-brand);
-  box-shadow: 0 4px 20px var(--brand-glow);
+  border-color: var(--brand);
+  box-shadow: 0 4px 30px var(--brand-glow);
+  transform: translateY(-4px);
 }
 
 /* ============================================================
@@ -678,18 +707,57 @@ h1,h2,h3,h4,h5,h6 {
 
 .navbar__mobile-toggle:hover { color: var(--text-primary); background: var(--bg-elevated); }
 
-.navbar__mobile-menu {
+/* Mobile Premium Menu */
+.mobile-menu-overlay {
   position: fixed;
-  top: var(--nav-h);
-  left: 0;
-  right: 0;
-  background: var(--bg-base);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: var(--space-4) var(--space-6);
+  inset: 0;
+  background: rgba(5, 5, 10, 0.85); /* Deep dark fade */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn var(--t-normal);
+}
+
+.mobile-menu-content {
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
+  width: 80%;
+  max-width: 320px;
+  height: 100vh;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  z-index: 199;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.8);
+  animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all var(--t-fast);
+}
+
+.mobile-menu-link:hover, .mobile-menu-link--active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.mobile-menu-link--danger:hover {
+  background: var(--danger-muted);
+  color: var(--danger);
 }
 
 /* ============================================================
@@ -772,22 +840,24 @@ h1,h2,h3,h4,h5,h6 {
    PLAYER CARD (shared)
    ============================================================ */
 .player-card {
-  background: var(--bg-surface);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  transition: border-color var(--t-normal), box-shadow var(--t-normal), transform var(--t-normal);
+  transition: all var(--t-normal);
   cursor: pointer;
   text-decoration: none;
 }
 
 .player-card:hover {
-  border-color: var(--border-muted);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 30px rgba(99, 102, 241, 0.1);
+  transform: translateY(-4px);
 }
 
 /* ============================================================
@@ -886,16 +956,19 @@ h1,h2,h3,h4,h5,h6 {
    RECRUITMENT CARD
    ============================================================ */
 .recruit-card {
-  background: var(--bg-surface);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  transition: border-color var(--t-normal), box-shadow var(--t-normal);
+  transition: all var(--t-normal);
 }
 
 .recruit-card:hover {
-  border-color: var(--border-muted);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 30px rgba(99, 102, 241, 0.1);
+  transform: translateY(-4px);
 }
 
 /* ============================================================
@@ -1080,16 +1153,19 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .feature-card {
-  background: var(--bg-surface);
+  background: var(--bg-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: var(--space-8);
-  transition: border-color var(--t-normal), transform var(--t-normal);
+  transition: border-color var(--t-normal), transform var(--t-normal), box-shadow var(--t-normal);
 }
 
 .feature-card:hover {
-  border-color: var(--border-muted);
-  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 30px rgba(99, 102, 241, 0.1);
+  transform: translateY(-4px);
 }
 
 .feature-card__icon {

@@ -86,18 +86,12 @@ const Teams = () => {
             {filtered.map(team => (
               <div
                 key={team._id}
+                className="card card--hoverable"
                 style={{
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: 'var(--space-5)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 'var(--space-3)',
-                  transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-muted)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
               >
                 {/* Team identity */}
                 <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
