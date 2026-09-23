@@ -1,13 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  const { login, googleLogin, error, user, setError } = useContext(AuthContext);
+  const { login, error, user, setError } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,11 +24,6 @@ const Login = () => {
     setSubmitting(false);
   };
 
-  const handleGoogleSuccess = async credentialResponse => {
-    const ok = await googleLogin({ token: credentialResponse.credential });
-    if (ok) navigate('/home');
-    else setError('Account not found. Please register first.');
-  };
 
   return (
     <div className="auth-page">
@@ -57,19 +51,6 @@ const Login = () => {
               {error}
             </div>
           )}
-
-          {/* Google */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google sign-in failed')}
-              theme="filled_black"
-              text="signin_with"
-              shape="rectangular"
-            />
-          </div>
-
-          <div className="divider--text">or</div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <div className="form-group">
