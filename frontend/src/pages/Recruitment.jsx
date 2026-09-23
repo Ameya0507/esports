@@ -3,97 +3,169 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
+const gameBadge = game => game === 'Valorant'
+  ? <span className="badge badge-valorant">{game}</span>
+  : <span className="badge badge-bgmi">{game}</span>;
+
 const Recruitment = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [gameFilter, setGameFilter] = useState('');
+  const [appliedIds, setAppliedIds] = useState(new Set());
+  const [toast, setToast] = useState(null);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchRecruitments = async () => {
-      try {
-        const res = await api.get('/recruitment');
-        setPosts(res.data.data);
-      } catch (err) {
-        console.error('Error fetching recruitment posts:', err);
-      }
-      setLoading(false);
-    };
-    fetchRecruitments();
+    api.get('/recruitment')
+      .then(r => setPosts(r.data.data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleApply = async (postId, role) => {
     try {
       await api.post(`/recruitment/${postId}/apply`, {
         roleApplied: role,
-        message: 'I am interested in joining your team!'
+        message: 'I am interested in joining your team!',
       });
-      alert('Application sent successfully!');
-      // In a real app, update state to show "Applied" instead of an alert
+      setAppliedIds(prev => new Set([...prev, `${postId}-${role}`]));
+      showToast('Application sent successfully!');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error applying to team');
+      showToast(err.response?.data?.message || 'Failed to apply', 'danger');
     }
   };
 
+  const filtered = gameFilter ? posts.filter(p => p.team?.game === gameFilter) : posts;
+
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Recruitment Board</h1>
-        {/* Teams could have a button here to create a new recruitment post */}
-      </div>
+    <div className="page-wrapper">
+      <div className="container">
+        <div className="page-header">
+          <div>
+            <h1 className="page-header__title">Recruitment Board</h1>
+            <p className="page-header__sub">Browse open positions and apply to competitive teams</p>
+          </div>
+        </div>
 
-      {loading ? (
-        <p>Loading open positions...</p>
-      ) : (
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
-          {posts.length > 0 ? posts.map(post => (
-            <div key={post._id} className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h3 style={{ color: 'var(--color-accent-primary)', marginBottom: '0.5rem' }}>{post.title}</h3>
-                <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', padding: '0.25rem 0.75rem', borderRadius: '4px', fontSize: '0.9rem', height: 'fit-content' }}>
-                  {post.team?.game}
-                </span>
-              </div>
-              
-              <Link to={`/teams/${post.team?._id}`} style={{ color: 'var(--color-text-primary)', textDecoration: 'underline', marginBottom: '1rem', display: 'inline-block' }}>
-                {post.team?.name}
-              </Link>
-              
-              <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>{post.description}</p>
-              
-              <div style={{ marginBottom: '1.5rem' }}>
-                <strong style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>REQUIREMENTS</strong>
-                <ul style={{ listStyle: 'inside', fontSize: '0.9rem' }}>
-                  <li>Min Rank: {post.requirements?.minRank || 'Any'}</li>
-                  <li>Region: {post.requirements?.region || 'Any'}</li>
-                  <li>Experience: {post.requirements?.experience || 'Any'}</li>
-                </ul>
-              </div>
+        {/* Game filter */}
+        <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-6)' }}>
+          {['', 'Valorant', 'BGMI'].map(g => (
+            <button
+              key={g}
+              className={`btn btn--sm ${gameFilter === g ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setGameFilter(g)}
+            >
+              {g || 'All Games'}
+            </button>
+          ))}
+        </div>
 
-              <div>
-                <strong style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>ROLES NEEDED</strong>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {post.rolesNeeded.map(role => (
-                    <div key={role} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--color-bg-hover)', padding: '0.5rem 0.75rem', borderRadius: '4px' }}>
-                      <span>{role}</span>
-                      {user && (
-                        <button 
-                          onClick={() => handleApply(post._id, role)}
-                          className="btn btn-primary" 
-                          style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
-                        >
-                          Apply
-                        </button>
-                      )}
-                    </div>
-                  ))}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {[1,2,3].map(i => (
+              <div key={i} className="recruit-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div className="skeleton" style={{ height: 18, width: '40%' }} />
+                  <div className="skeleton" style={{ height: 22, width: 80, borderRadius: 20 }} />
+                </div>
+                <div className="skeleton" style={{ height: 14, marginBottom: 8 }} />
+                <div className="skeleton" style={{ height: 14, width: '75%' }} />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {filtered.map(post => (
+              <div key={post._id} className="recruit-card">
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-4)', marginBottom: 'var(--space-4)', flexWrap: 'wrap' }}>
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', marginBottom: 4 }}>
+                      {post.title}
+                    </h3>
+                    <Link
+                      to={`/teams/${post.team?._id}`}
+                      style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500, textDecoration: 'none' }}
+                    >
+                      🏆 {post.team?.name}
+                    </Link>
+                  </div>
+                  {gameBadge(post.team?.game)}
+                </div>
+
+                {/* Description */}
+                {post.description && (
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 'var(--space-5)' }}>
+                    {post.description}
+                  </p>
+                )}
+
+                {/* Requirements */}
+                <div style={{ marginBottom: 'var(--space-5)' }}>
+                  <p className="section-label">Requirements</p>
+                  <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
+                    {post.requirements?.minRank && (
+                      <span className="badge badge-neutral">🏅 Min Rank: {post.requirements.minRank}</span>
+                    )}
+                    {post.requirements?.region && (
+                      <span className="badge badge-neutral">📍 {post.requirements.region}</span>
+                    )}
+                    {post.requirements?.experience && (
+                      <span className="badge badge-neutral">⭐ {post.requirements.experience}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Roles */}
+                <div>
+                  <p className="section-label">Roles Needed</p>
+                  <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'var(--space-2)' }}>
+                    {post.rolesNeeded?.map(role => {
+                      const key = `${post._id}-${role}`;
+                      const applied = appliedIds.has(key);
+                      return (
+                        <div key={role} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: 'var(--space-2) var(--space-3)' }}>
+                          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }}>{role}</span>
+                          {user && (
+                            <button
+                              onClick={() => !applied && handleApply(post._id, role)}
+                              className={`btn btn--sm ${applied ? 'btn-secondary' : 'btn-primary'}`}
+                              style={{ height: 26, padding: '0 10px', fontSize: 12 }}
+                              disabled={applied}
+                            >
+                              {applied ? '✓ Applied' : 'Apply'}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          )) : (
-            <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-              <p>No open recruitment posts found right now.</p>
-            </div>
-          )}
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <span className="empty-state__icon">📋</span>
+            <p className="empty-state__title">No open positions</p>
+            <p className="empty-state__desc">
+              {gameFilter ? `No ${gameFilter} recruitment posts yet.` : 'No recruitment posts yet. Check back later.'}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="toast-container">
+          <div className={`toast toast--${toast.type}`}>
+            {toast.type === 'success' ? '✅' : '❌'} {toast.msg}
+          </div>
         </div>
       )}
     </div>

@@ -5,159 +5,194 @@ import { GoogleLogin } from '@react-oauth/google';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    gamerTag: '',
-    email: '',
-    password: '',
-    primaryGame: 'Valorant',
-    role: 'player'
+    name: '', gamerTag: '', email: '', password: '', primaryGame: 'Valorant', role: 'player',
   });
-
   const [googleToken, setGoogleToken] = useState(null);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const { register, googleLogin, error, user, setError } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/home');
-    }
+    if (user) navigate('/home');
     setError(null);
   }, [user, navigate, setError]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = e => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    const success = await register(formData);
-    if (success) navigate('/home');
+    setSubmitting(true);
+    const ok = await register(formData);
+    if (ok) navigate('/home');
+    setSubmitting(false);
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    // Attempt standard login first in case they already have an account
-    const success = await googleLogin({ token: credentialResponse.credential });
-    
-    // If it fails with "Please provide Gamer Tag", we need to show the modal
-    if (!success) {
-      setGoogleToken(credentialResponse.credential);
+  const handleGoogleSuccess = async cr => {
+    const ok = await googleLogin({ token: cr.credential });
+    if (ok) navigate('/home');
+    else {
+      setGoogleToken(cr.credential);
       setShowGoogleModal(true);
-      setError(null); // Clear the error from the background attempt
-    } else {
-      navigate('/home');
+      setError(null);
     }
   };
 
-  const handleGoogleComplete = async (e) => {
+  const handleGoogleComplete = async e => {
     e.preventDefault();
-    const success = await googleLogin({
+    setSubmitting(true);
+    const ok = await googleLogin({
       token: googleToken,
       gamerTag: formData.gamerTag,
       primaryGame: formData.primaryGame,
-      role: formData.role
+      role: formData.role,
     });
-    if (success) navigate('/home');
+    if (ok) navigate('/home');
+    setSubmitting(false);
   };
 
   return (
-    <div className="auth-container">
-      <div className="card auth-card" style={{ position: 'relative' }}>
-        <h2 className="auth-title">Join EsportsConnect</h2>
-        {error && <div style={{ color: 'var(--color-danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-        
-        {/* Google OAuth Component */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => {
-              setError('Google Login Failed');
-            }}
-            theme="filled_black"
-            text="signup_with"
-            shape="rectangular"
-          />
+    <div className="auth-page">
+      <div className="auth-card" style={{ maxWidth: 480 }}>
+        {/* Logo */}
+        <div className="auth-logo">
+          <div className="auth-logo__mark">E</div>
+          <span className="auth-logo__text">EsportsConnect</span>
         </div>
 
-        <div style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--color-text-secondary)' }}>
-          — OR —
-        </div>
+        <div className="card" style={{ padding: 'var(--space-8)', position: 'relative', overflow: 'hidden' }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Create your profile</h1>
+          <p className="text-sm text-muted" style={{ marginBottom: 'var(--space-6)' }}>Join thousands of competitive esports players</p>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Full Name</label>
-            <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="gamerTag">Gamer Tag</label>
-            <input type="text" id="gamerTag" name="gamerTag" value={formData.gamerTag} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required minLength="6" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="primaryGame">Primary Game</label>
-            <select id="primaryGame" name="primaryGame" value={formData.primaryGame} onChange={handleChange}>
-              <option value="Valorant">Valorant</option>
-              <option value="BGMI">BGMI</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="role">I am a...</label>
-            <select id="role" name="role" value={formData.role} onChange={handleChange}>
-              <option value="player">Player</option>
-              <option value="team_owner">Team Owner / Captain</option>
-            </select>
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-            Create Account
-          </button>
-        </form>
-        <p style={{ marginTop: '1.5rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
+          {error && (
+            <div style={{
+              background: 'var(--danger-muted)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-3) var(--space-4)',
+              fontSize: 13,
+              color: 'var(--danger)',
+              marginBottom: 'var(--space-5)',
+            }}>
+              {error}
+            </div>
+          )}
 
-        {/* Modal for Google Sign-In Missing Details */}
-        {showGoogleModal && (
-          <div style={{
-            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-            background: 'var(--color-bg-card)', borderRadius: 'var(--border-radius)',
-            padding: '2rem', zIndex: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center'
-          }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--color-accent-primary)' }}>One Last Step!</h3>
-            <p style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-              Google gave us your email, but we need your Gamer Tag and Game to build your profile.
-            </p>
-            <form onSubmit={handleGoogleComplete}>
+          {/* Google */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google sign-in failed')}
+              theme="filled_black"
+              text="signup_with"
+              shape="rectangular"
+            />
+          </div>
+
+          <div className="divider--text">or sign up with email</div>
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
               <div className="form-group">
-                <label>Gamer Tag</label>
-                <input type="text" name="gamerTag" value={formData.gamerTag} onChange={handleChange} required />
+                <label className="form-label">Full Name</label>
+                <input className="form-input" type="text" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
               </div>
               <div className="form-group">
-                <label>Primary Game</label>
-                <select name="primaryGame" value={formData.primaryGame} onChange={handleChange}>
+                <label className="form-label">Gamer Tag</label>
+                <input className="form-input" type="text" name="gamerTag" value={formData.gamerTag} onChange={handleChange} placeholder="ShadowGG#001" required />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input className="form-input" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" required autoComplete="email" />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input className="form-input" type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Min. 6 characters" required minLength={6} autoComplete="new-password" />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+              <div className="form-group">
+                <label className="form-label">Primary Game</label>
+                <select className="form-select" name="primaryGame" value={formData.primaryGame} onChange={handleChange}>
                   <option value="Valorant">Valorant</option>
                   <option value="BGMI">BGMI</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Role</label>
-                <select name="role" value={formData.role} onChange={handleChange}>
+                <label className="form-label">I am a…</label>
+                <select className="form-select" name="role" value={formData.role} onChange={handleChange}>
                   <option value="player">Player</option>
-                  <option value="team_owner">Team Owner</option>
+                  <option value="team_owner">Team Owner / Captain</option>
                 </select>
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>Complete Profile</button>
-              <button type="button" className="btn btn-secondary" style={{ width: '100%', marginTop: '1rem' }} onClick={() => setShowGoogleModal(false)}>Cancel</button>
-            </form>
-          </div>
-        )}
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              style={{ height: 42, marginTop: 'var(--space-2)' }}
+              disabled={submitting}
+            >
+              {submitting ? 'Creating account…' : 'Create account'}
+            </button>
+          </form>
+
+          {/* Google Modal Overlay */}
+          {showGoogleModal && (
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'var(--bg-surface)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-8)',
+              zIndex: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4, textAlign: 'center' }}>One last step</h3>
+              <p className="text-sm text-muted" style={{ textAlign: 'center', marginBottom: 'var(--space-6)' }}>
+                We got your email from Google. Tell us your gamer identity to finish setup.
+              </p>
+              <form onSubmit={handleGoogleComplete}>
+                <div className="form-group">
+                  <label className="form-label">Gamer Tag</label>
+                  <input className="form-input" type="text" name="gamerTag" value={formData.gamerTag} onChange={handleChange} placeholder="ShadowGG#001" required />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                  <div className="form-group">
+                    <label className="form-label">Primary Game</label>
+                    <select className="form-select" name="primaryGame" value={formData.primaryGame} onChange={handleChange}>
+                      <option value="Valorant">Valorant</option>
+                      <option value="BGMI">BGMI</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Role</label>
+                    <select className="form-select" name="role" value={formData.role} onChange={handleChange}>
+                      <option value="player">Player</option>
+                      <option value="team_owner">Team Owner</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" className="btn btn-primary btn-full" style={{ height: 42 }} disabled={submitting}>
+                  {submitting ? 'Finishing setup…' : 'Complete setup'}
+                </button>
+                <button type="button" className="btn btn-ghost btn-full" style={{ marginTop: 'var(--space-2)', height: 38 }} onClick={() => setShowGoogleModal(false)}>
+                  Cancel
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+
+        <p className="text-sm text-muted" style={{ textAlign: 'center', marginTop: 'var(--space-5)' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: 'var(--brand)', fontWeight: 600 }}>Sign in</Link>
+        </p>
       </div>
     </div>
   );

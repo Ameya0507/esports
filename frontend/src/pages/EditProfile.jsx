@@ -3,182 +3,248 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
+const AVAILABLE_ROLES = {
+  Valorant: ['Duelist', 'Initiator', 'Controller', 'Sentinel', 'Flex', 'IGL'],
+  BGMI:     ['IGL', 'Assaulter', 'Support', 'Scout', 'Sniper', 'Entry Fragger', 'Flex'],
+};
+const AVAILABLE_SKILLS = {
+  Valorant: ['Aim', 'Game Sense', 'Communication', 'Entry Fragging', 'Utility Usage', 'Clutching', 'IGL', 'Strategy', 'Map Knowledge'],
+  BGMI:     ['Aim', 'Close-range Combat', 'Long-range Combat', 'IGL', 'Rotations', 'Communication', 'Clutching', 'Grenade Usage', 'Team Coordination'],
+};
+
+const SECTIONS = [
+  { id: 'basics',       label: 'Basics' },
+  { id: 'competitive',  label: 'Competitive' },
+  { id: 'skills',       label: 'Skills' },
+  { id: 'about',        label: 'About' },
+];
+
 const EditProfile = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
-  
+  const [activeSection, setActiveSection] = useState('basics');
+
   const [formData, setFormData] = useState({
-    game: 'Valorant',
-    roles: [],
-    rank: '',
-    region: '',
-    experience: 'Casual',
-    availability: 'Evenings / Weekends',
-    skills: [],
-    about: '',
+    game: 'Valorant', roles: [], rank: '', region: '',
+    experience: 'Casual', availability: 'Evenings / Weekends', skills: [], about: '',
   });
 
-  const availableRoles = {
-    Valorant: ['Duelist', 'Initiator', 'Controller', 'Sentinel', 'Flex', 'IGL'],
-    BGMI: ['IGL', 'Assaulter', 'Support', 'Scout', 'Sniper', 'Entry Fragger', 'Flex']
-  };
-
-  const availableSkills = {
-    Valorant: ['Aim', 'Game Sense', 'Communication', 'Entry Fragging', 'Utility Usage', 'Clutching', 'IGL', 'Strategy', 'Map Knowledge'],
-    BGMI: ['Aim', 'Close-range Combat', 'Long-range Combat', 'IGL', 'Rotations', 'Communication', 'Clutching', 'Grenade Usage', 'Team Coordination']
-  };
-
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get('/profiles/me');
-        if (res.data.data) {
-          const p = res.data.data;
+    api.get('/profiles/me')
+      .then(r => {
+        if (r.data.data) {
+          const p = r.data.data;
           setFormData({
-            game: p.game || 'Valorant',
-            roles: p.roles || [],
-            rank: p.rank || '',
-            region: p.region || '',
-            experience: p.experience || 'Casual',
-            availability: p.availability || 'Evenings / Weekends',
-            skills: p.skills || [],
-            about: p.about || '',
+            game: p.game || 'Valorant', roles: p.roles || [], rank: p.rank || '',
+            region: p.region || '', experience: p.experience || 'Casual',
+            availability: p.availability || 'Evenings / Weekends', skills: p.skills || [], about: p.about || '',
           });
         }
-      } catch (err) {
-        // It's okay if profile doesn't exist yet (404)
-        if (err.response?.status !== 404) {
-          setError('Failed to load profile');
-        }
-      }
-      setLoading(false);
-    };
-    fetchProfile();
+      })
+      .catch(err => { if (err.response?.status !== 404) setError('Failed to load profile'); })
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const set = (k, v) => setFormData(p => ({ ...p, [k]: v }));
+  const toggleArr = (k, val) => set(k, formData[k].includes(val) ? formData[k].filter(x => x !== val) : [...formData[k], val]);
 
-  const handleRoleToggle = (role) => {
-    const updatedRoles = formData.roles.includes(role)
-      ? formData.roles.filter(r => r !== role)
-      : [...formData.roles, role];
-    setFormData({ ...formData, roles: updatedRoles });
-  };
-
-  const handleSkillToggle = (skill) => {
-    const updatedSkills = formData.skills.includes(skill)
-      ? formData.skills.filter(s => s !== skill)
-      : [...formData.skills, skill];
-    setFormData({ ...formData, skills: updatedSkills });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
+    setSaving(true);
+    setError(null);
     try {
       await api.post('/profiles', formData);
-      navigate('/profile');
+      setSaved(true);
+      setTimeout(() => { setSaved(false); navigate('/profile'); }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Error saving profile');
     }
+    setSaving(false);
   };
 
-  if (loading) return <div className="container">Loading...</div>;
+  if (loading) return (
+    <div className="page-wrapper">
+      <div className="container" style={{ maxWidth: 720 }}>
+        <div className="skeleton" style={{ height: 44, marginBottom: 24 }} />
+        <div className="skeleton" style={{ height: 300, borderRadius: 12 }} />
+      </div>
+    </div>
+  );
+
+  const roles = AVAILABLE_ROLES[formData.game];
+  const skills = AVAILABLE_SKILLS[formData.game];
 
   return (
-    <div className="container" style={{ padding: '2rem 1.5rem', maxWidth: '800px' }}>
-      <div className="card">
-        <h2 style={{ marginBottom: '2rem' }}>Edit Your Profile</h2>
-        {error && <div style={{ color: 'var(--color-danger)', marginBottom: '1rem' }}>{error}</div>}
-        
+    <div className="page-wrapper">
+      <div className="container" style={{ maxWidth: 720 }}>
+        <div className="page-header">
+          <div>
+            <h1 className="page-header__title">Edit Profile</h1>
+            <p className="page-header__sub">Your esports resume — make it count</p>
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ background: 'var(--danger-muted)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 'var(--radius-md)', padding: 'var(--space-3) var(--space-4)', fontSize: 13, color: 'var(--danger)', marginBottom: 'var(--space-5)' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Section Tabs */}
+        <div className="tabs">
+          {SECTIONS.map(s => (
+            <button
+              key={s.id}
+              className={`tab${activeSection === s.id ? ' tab--active' : ''}`}
+              onClick={() => setActiveSection(s.id)}
+              type="button"
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Primary Game</label>
-            <select name="game" value={formData.game} onChange={(e) => {
-              handleChange(e);
-              setFormData(prev => ({ ...prev, roles: [], skills: [] })); // Reset on game change
-            }}>
-              <option value="Valorant">Valorant</option>
-              <option value="BGMI">BGMI</option>
-            </select>
-          </div>
 
-          <div className="form-group">
-            <label>Roles (Select multiple)</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {availableRoles[formData.game].map(role => (
-                <button
-                  type="button"
-                  key={role}
-                  onClick={() => handleRoleToggle(role)}
-                  className={`btn ${formData.roles.includes(role) ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ padding: '0.25rem 0.75rem', fontSize: '0.9rem' }}
-                >
-                  {role}
+          {/* ——— BASICS ——— */}
+          {activeSection === 'basics' && (
+            <div className="card">
+              <div className="form-group">
+                <label className="form-label">Primary Game</label>
+                <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                  {['Valorant', 'BGMI'].map(g => (
+                    <button
+                      key={g}
+                      type="button"
+                      className={`btn ${formData.game === g ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => { set('game', g); set('roles', []); set('skills', []); }}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                <div className="form-group">
+                  <label className="form-label">Rank</label>
+                  <input className="form-input" type="text" value={formData.rank} onChange={e => set('rank', e.target.value)} placeholder="e.g. Immortal 2" required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Region / Country</label>
+                  <input className="form-input" type="text" value={formData.region} onChange={e => set('region', e.target.value)} placeholder="e.g. India" required />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                <div className="form-group">
+                  <label className="form-label">Experience Level</label>
+                  <select className="form-select" value={formData.experience} onChange={e => set('experience', e.target.value)}>
+                    {['Casual', 'Amateur', 'Semi-Pro', 'Professional'].map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Availability</label>
+                  <input className="form-input" type="text" value={formData.availability} onChange={e => set('availability', e.target.value)} placeholder="e.g. Evenings / Weekends" />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-2)' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setActiveSection('competitive')}>
+                  Next: Competitive →
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label>Rank</label>
-              <input type="text" name="rank" value={formData.rank} onChange={handleChange} placeholder="e.g. Immortal 2" required />
-            </div>
-            <div className="form-group">
-              <label>Region / Country</label>
-              <input type="text" name="region" value={formData.region} onChange={handleChange} placeholder="e.g. India" required />
-            </div>
-          </div>
+          {/* ——— COMPETITIVE ——— */}
+          {activeSection === 'competitive' && (
+            <div className="card">
+              <div className="form-group">
+                <label className="form-label">
+                  Roles <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>— select all that apply</span>
+                </label>
+                <div className="role-grid" style={{ marginTop: 'var(--space-2)' }}>
+                  {roles.map(r => (
+                    <button
+                      type="button"
+                      key={r}
+                      className={`chip${formData.roles.includes(r) ? ' chip--active' : ''}`}
+                      onClick={() => toggleArr('roles', r)}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label>Experience Level</label>
-              <select name="experience" value={formData.experience} onChange={handleChange}>
-                <option value="Casual">Casual</option>
-                <option value="Amateur">Amateur</option>
-                <option value="Semi-Pro">Semi-Pro</option>
-                <option value="Professional">Professional</option>
-              </select>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-2)' }}>
+                <button type="button" className="btn btn-ghost" onClick={() => setActiveSection('basics')}>← Back</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setActiveSection('skills')}>Next: Skills →</button>
+              </div>
             </div>
-            <div className="form-group">
-              <label>Availability</label>
-              <input type="text" name="availability" value={formData.availability} onChange={handleChange} placeholder="e.g. Evenings / Weekends" />
-            </div>
-          </div>
+          )}
 
-          <div className="form-group">
-            <label>Skills (Select multiple)</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-              {availableSkills[formData.game].map(skill => (
+          {/* ——— SKILLS ——— */}
+          {activeSection === 'skills' && (
+            <div className="card">
+              <div className="form-group">
+                <label className="form-label">
+                  Skills <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>— select what you're great at</span>
+                </label>
+                <div className="role-grid" style={{ marginTop: 'var(--space-2)' }}>
+                  {skills.map(s => (
+                    <button
+                      type="button"
+                      key={s}
+                      className={`chip${formData.skills.includes(s) ? ' chip--active' : ''}`}
+                      onClick={() => toggleArr('skills', s)}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-2)' }}>
+                <button type="button" className="btn btn-ghost" onClick={() => setActiveSection('competitive')}>← Back</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setActiveSection('about')}>Next: About →</button>
+              </div>
+            </div>
+          )}
+
+          {/* ——— ABOUT ——— */}
+          {activeSection === 'about' && (
+            <div className="card">
+              <div className="form-group">
+                <label className="form-label">About Me</label>
+                <textarea
+                  className="form-textarea"
+                  value={formData.about}
+                  onChange={e => set('about', e.target.value)}
+                  rows={5}
+                  placeholder="Tell teams about your competitive background, goals, and what kind of team you're looking for…"
+                  style={{ minHeight: 140 }}
+                />
+                <span className="form-hint">{formData.about.length} characters</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-2)' }}>
+                <button type="button" className="btn btn-ghost" onClick={() => setActiveSection('skills')}>← Back</button>
                 <button
-                  type="button"
-                  key={skill}
-                  onClick={() => handleSkillToggle(skill)}
-                  style={{ 
-                    padding: '0.25rem 0.75rem', 
-                    borderRadius: '4px',
-                    border: `1px solid ${formData.skills.includes(skill) ? 'var(--color-accent-primary)' : 'var(--color-border)'}`,
-                    backgroundColor: formData.skills.includes(skill) ? 'rgba(99,102,241,0.1)' : 'transparent',
-                    color: formData.skills.includes(skill) ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                    cursor: 'pointer'
-                  }}
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={saving || saved}
                 >
-                  {skill}
+                  {saved ? '✓ Saved!' : saving ? 'Saving…' : 'Save profile'}
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
-
-          <div className="form-group">
-            <label>About Me</label>
-            <textarea name="about" value={formData.about} onChange={handleChange} rows="4" placeholder="Tell teams about yourself..."></textarea>
-          </div>
-
-          <button type="submit" className="btn btn-primary">Save Profile</button>
+          )}
         </form>
       </div>
     </div>

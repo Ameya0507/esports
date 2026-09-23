@@ -4,84 +4,116 @@ import { AuthContext } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [submitting, setSubmitting] = useState(false);
+
   const { login, googleLogin, error, user, setError } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/home');
-    }
+    if (user) navigate('/home');
     setError(null);
   }, [user, navigate, setError]);
 
-  const handleSubmit = async (e) => {
+  const handleChange = e => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
-      navigate('/home');
-    }
+    setSubmitting(true);
+    const ok = await login(formData.email, formData.password);
+    if (ok) navigate('/home');
+    setSubmitting(false);
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    const success = await googleLogin({ token: credentialResponse.credential });
-    if (success) {
-      navigate('/home');
-    } else {
-      // If it fails because gamerTag is missing, they need to register, not login.
-      setError("Account not found or missing info. Please use the Register page.");
-    }
+  const handleGoogleSuccess = async credentialResponse => {
+    const ok = await googleLogin({ token: credentialResponse.credential });
+    if (ok) navigate('/home');
+    else setError('Account not found. Please register first.');
   };
 
   return (
-    <div className="auth-container">
-      <div className="card auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
-        {error && <div style={{ color: 'var(--color-danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-        
-        {/* Google OAuth Component */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google Login Failed')}
-            theme="filled_black"
-            text="signin_with"
-            shape="rectangular"
-          />
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Logo */}
+        <div className="auth-logo">
+          <div className="auth-logo__mark">E</div>
+          <span className="auth-logo__text">EsportsConnect</span>
         </div>
 
-        <div style={{ textAlign: 'center', margin: '1rem 0', color: 'var(--color-text-secondary)' }}>
-          — OR —
+        <div className="card" style={{ padding: 'var(--space-8)' }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Welcome back</h1>
+          <p className="text-sm text-muted" style={{ marginBottom: 'var(--space-6)' }}>Sign in to continue to your account</p>
+
+          {error && (
+            <div style={{
+              background: 'var(--danger-muted)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-3) var(--space-4)',
+              fontSize: 13,
+              color: 'var(--danger)',
+              marginBottom: 'var(--space-5)',
+            }}>
+              {error}
+            </div>
+          )}
+
+          {/* Google */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google sign-in failed')}
+              theme="filled_black"
+              text="signin_with"
+              shape="rectangular"
+            />
+          </div>
+
+          <div className="divider--text">or</div>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                className="form-input"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input
+                className="form-input"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Your password"
+                required
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-full"
+              style={{ height: 42, marginTop: 'var(--space-2)' }}
+              disabled={submitting}
+            >
+              {submitting ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-            Login
-          </button>
-        </form>
-        <p style={{ marginTop: '1.5rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-          Don't have an account? <Link to="/register">Register here</Link>
+        <p className="text-sm text-muted" style={{ textAlign: 'center', marginTop: 'var(--space-5)' }}>
+          Don't have an account?{' '}
+          <Link to="/register" style={{ color: 'var(--brand)', fontWeight: 600 }}>Create one</Link>
         </p>
       </div>
     </div>
